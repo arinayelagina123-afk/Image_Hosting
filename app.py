@@ -1,13 +1,13 @@
-from flask import Flask, render_template, jsonify, request, send_from_directory, url_for
-from PIL import Image, UnidentifiedImageError
 import logging
 import uuid
-import os
 from io import BytesIO
 from pathlib import Path
 
-app = Flask(__name__)
+from PIL import Image, UnidentifiedImageError
+from flask import Flask, render_template, jsonify, request, send_from_directory, url_for
 
+app = Flask(__name__)
+# создание логирования, папок и настроек для приложения
 BASE_DIR = Path(__file__).resolve().parent
 
 IMAGES_DIR = Path("IMAGES_DIR", BASE_DIR / 'images')
@@ -36,7 +36,7 @@ logging.basicConfig(
 )
 
 
-def detect_image_extension(file_data: bytes):
+def detect_image_extension(file_data: bytes):  # функция читает изображение по байтам и после определяет разрешение
     try:
         with Image.open(BytesIO(file_data)) as image:
             image.verify()
@@ -72,23 +72,6 @@ def images_page():
             }
         )
     return render_template("images.html", images=images)
-
-
-@app.get('/me')
-def get_me_account():
-    info = {
-        'id': 1,
-        'name': 'John',
-        'age': 67,
-        'place_work': 'idk',
-        'languages': ['python', 'java', 'CSS'],
-        'Iaadult': False,
-        'adress': {
-            'city': 'Rostov-on-Don',
-            'Street': 'sss',
-        }
-    }
-    return render_template("me/home.html", info=info)
 
 
 @app.post('/upload')
@@ -128,12 +111,6 @@ def upload_image():
     unique_filename = f'{uuid.uuid4().hex}.{image_extension}'
     target_path = IMAGES_DIR / unique_filename
     target_path.write_bytes(file_data)
-
-    print("SAVE PATH:", target_path)
-    print("EXISTS:", target_path.exists())
-    print("SIZE:", target_path.stat().st_size if target_path.exists() else "NO FILE")
-
-
     relative_url = url_for('get_image', filename=unique_filename)
     full_url = request.host_url.rstrip('/') + relative_url
 
@@ -150,7 +127,7 @@ def upload_image():
 
 @app.get('/images/<path:filename>')
 def get_image(filename):
-    return send_from_directory(str(IMAGES_DIR), filename)
+    return send_from_directory(str(IMAGES_DIR), filename)  # send_from_directory предпочтительно принимать строки
 
 
 if __name__ == '__main__':

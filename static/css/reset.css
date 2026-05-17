@@ -55,7 +55,7 @@ img {
 }
 
 /* Specify a clear periodicity in the data flow for article */
-article>*+* {
+article > * + * {
     margin-top: 1em;
 }
 

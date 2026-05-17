@@ -55,13 +55,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-            })
-            .catch(error => {
-                console.error(error);
-            });                                         //до сюда отправка файла на Flask
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error(error);
+                });                                         //до сюда отправка файла на Flask
             const reader = new FileReader();
             reader.onload = (event) => {
                 const fileData = {name: file.name, url: event.target.result};
