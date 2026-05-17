@@ -48,7 +48,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!allowedTypes.includes(file.type) || file.size > MAX_SIZE_BYTES) {
                 continue;
             }
+            const formData = new FormData();  //от отсюда
+            formData.append('image', file);
 
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error(error);
+            });                                         //до сюда отправка файла на Flask
             const reader = new FileReader();
             reader.onload = (event) => {
                 const fileData = {name: file.name, url: event.target.result};

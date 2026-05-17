@@ -68,7 +68,7 @@ def images_page():
             {
                 'name': image_path.name,
                 'url': relative_url,
-                full_url: full_url
+                'full_url': full_url
             }
         )
     return render_template("images.html", images=images)
@@ -125,9 +125,14 @@ def upload_image():
                 'error': 'Поддерживаются только форматы jpg,png,gif.'
             }
         )
-    unique_filename = f'{uuid.uuid4().hex}{image_extension}'
+    unique_filename = f'{uuid.uuid4().hex}.{image_extension}'
     target_path = IMAGES_DIR / unique_filename
     target_path.write_bytes(file_data)
+
+    print("SAVE PATH:", target_path)
+    print("EXISTS:", target_path.exists())
+    print("SIZE:", target_path.stat().st_size if target_path.exists() else "NO FILE")
+
 
     relative_url = url_for('get_image', filename=unique_filename)
     full_url = request.host_url.rstrip('/') + relative_url
@@ -145,8 +150,8 @@ def upload_image():
 
 @app.get('/images/<path:filename>')
 def get_image(filename):
-    return send_from_directory(IMAGES_DIR, filename)
+    return send_from_directory(str(IMAGES_DIR), filename)
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3001, debug=True)
+    app.run(host='0.0.0.0', port=3001, debug=False)
