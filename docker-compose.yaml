@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - "3000:3000"
+      - "8000:8000"
 
     environment:
       IMAGE_DIR: /images
