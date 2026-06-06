@@ -1,8 +1,10 @@
 import logging
+import os
 import uuid
 from io import BytesIO
 from pathlib import Path
-
+from database.models import create_images
+from database.repository import save_metadata, get_images,get_count_images
 from PIL import Image, UnidentifiedImageError
 from flask import Flask, render_template, jsonify, request, send_from_directory, url_for
 
@@ -14,6 +16,7 @@ IMAGES_DIR = Path("IMAGES_DIR", BASE_DIR / 'images')
 
 LOGS_DIR = Path("LOGS_DIR", BASE_DIR / 'logs')
 
+
 MAX_FILE_SIZE = 5 * 1024 * 1024
 
 REQUEST_LIMIT = MAX_FILE_SIZE + 1024 * 1024
@@ -24,8 +27,8 @@ ALLOWED_IMAGE_FORMAT = {
     'GIF': 'gif'
 }
 app.config['MAX_CONTENT_LENGTH'] = REQUEST_LIMIT
-IMAGES_DIR.mkdir(exist_ok=True)
-LOGS_DIR.mkdir(exist_ok=True)
+IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 logging.basicConfig(
     filename=LOGS_DIR / 'app.log',
@@ -111,6 +114,19 @@ def upload_image():
     unique_filename = f'{uuid.uuid4().hex}.{image_extension}'
     target_path = IMAGES_DIR / unique_filename
     target_path.write_bytes(file_data)
+
+    try:
+        save_metadata(
+            filename=unique_filename,
+            original_name=original_filename,
+            size=len(file_data),
+            file_type=image_extension
+        )
+    except Exception as e:
+        target_path.unlink(missing_ok=True)
+        logging.warning(f'Файл удален так как метаданные не сохранились.')
+        return jsonify({'error': 'Файл удален так как метаданные не сохранились.'}), 500
+
     relative_url = url_for('get_image', filename=unique_filename)
     full_url = request.host_url.rstrip('/') + relative_url
 
@@ -125,10 +141,38 @@ def upload_image():
     ), 201
 
 
+@app.get('/images-list')
+def images_list():
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    offset = (page - 1) * per_page
+    total = get_count_images()
+    rows = get_images(per_page, offset)
+    images_list = []
+    for row in rows:
+        images_list.append({
+            'id': row[0],
+            'filename': row[1],
+            'original_name': row[2],
+            'size': row[3],
+            'upload_time': row[4],
+            'file_type': row[5],
+            'url': url_for('get_image', filename=row[1])
+        })
+    total_pages = (total+ per_page - 1) // per_page
+    return render_template(
+        template_name_or_list='images_list.html',
+        images=images_list,
+        page=page,
+        total_pages=total_pages,
+        total_images=total
+    )
+
 @app.get('/images/<path:filename>')
 def get_image(filename):
     return send_from_directory(str(IMAGES_DIR), filename)  # send_from_directory предпочтительно принимать строки
 
 
 if __name__ == '__main__':
+    create_images()
     app.run(host='0.0.0.0', port=8000, debug=False)

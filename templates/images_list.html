@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Images list</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reset.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<section class="upload__intro">
+    <h2 class="upload__title">Список изображений</h2>
+    <p class="upload__description">Все загруженные файлы из базы данных с быстрым доступом к просмотру и удалению.</p>
+</section>
+<nav class="upload__tabs">
+    <a class="upload__tab" href="{{ url_for('upload_page') }}">Upload</a>
+    <a class="upload__tab upload__tab--active" href="{{ url_for('images_list') }}">Images list</a>
+</nav>
+<main class="images-list">
+    <section class="images-list__summary">
+        <p>Всего записей: {{ total_images }}</p>
+        <p>Страница {{ page }} из {{ total_pages or 1 }}</p>
+    </section>
+
+    {% if images %}
+    <div class="images-list__table">
+        <div class="images-list__head">
+            <span>Файл</span>
+            <span>Оригинальное имя</span>
+            <span>Размер</span>
+            <span>Дата загрузки</span>
+            <span>Тип</span>
+            <span>Действия</span>
+        </div>
+        {% for image in images %}
+        <div class="images-list__row">
+            <div class="images-list__cell images-list__cell--file">
+                <span class="images-list__name">{{ image.filename }}</span>
+            </div>
+            <div class="images-list__cell">{{ image.original_name }}</div>
+            <div class="images-list__cell">{{ '%.2f'|format(image.size / 1024) }} KB</div>
+            <div class="images-list__cell">{{ image.upload_time }}</div>
+            <div class="images-list__cell">{{ image.file_type }}</div>
+            <div class="images-list__cell images-list__actions">
+                <a class="images-list__button" href="{{ image.url }}" target="_blank" rel="noreferrer">Open</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="images-list__pagination">
+        {% if page > 1 %}
+        <a class="images-list__pager" href="{{ url_for('images_list', page=page - 1) }}">Prev</a>
+        {% endif %}
+        {% if page < total_pages %}
+        <a class="images-list__pager" href="{{ url_for('images_list', page=page + 1) }}">Next</a>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="images-list__empty">
+        <p>Пока нет загруженных изображений.</p>
+    </div>
+    {% endif %}
+</main>
+</body>
+</html>
