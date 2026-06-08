@@ -1,0 +1,4 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+0 3 1,4,7,10,13,16,19,22,25,28,31 * * root /backup.sh >> /backups/backup.log 2>&1

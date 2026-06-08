@@ -49,6 +49,23 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./images:/images:ro
+  backup:
+    build:
+      context: ./scripts
+      dockerfile: Dockerfile
+    container_name: image_server_backup
+    restart: unless-stopped
+
+    depends_on:
+      - db
+
+    environment:
+      PGPASSWORD: password
+
+    volumes:
+      - ./backups:/backups
+      - ./scripts/backup.sh:/backup.sh:ro
+      - ./scripts/crontab:/etc/cron.d/db-backup:ro
 
 volumes:
   db_data:

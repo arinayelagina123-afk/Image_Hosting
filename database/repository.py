@@ -1,6 +1,6 @@
 import logging
-
 from database.db import get_connection
+
 
 
 def save_metadata(filename: str, original_name: str, size: int, file_type: str) -> None:
@@ -47,3 +47,6 @@ def get_count_images():
     except Exception:
         logging.error('НЕ смогли вытащить данные из бд.')
         raise
+
+
+
