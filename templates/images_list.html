@@ -47,6 +47,11 @@
             <div class="images-list__cell">{{ image.file_type }}</div>
             <div class="images-list__cell images-list__actions">
                 <a class="images-list__button" href="{{ image.url }}" target="_blank" rel="noreferrer">Open</a>
+                <button type="button"
+                        class="images-list__button images-list__button--delete"
+                        data-filename="{{ image.filename }}">
+                    Delete
+                </button>
             </div>
         </div>
         {% endfor %}
@@ -66,5 +71,6 @@
     </div>
     {% endif %}
 </main>
+<script src="{{ url_for('static', filename='js/images_list.js') }}" defer></script>
 </body>
 </html>

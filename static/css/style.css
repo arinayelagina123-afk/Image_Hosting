@@ -390,6 +390,7 @@ body {
 .images-list__actions {
     display: flex;
     justify-content: flex-start;
+    gap: 8px;
 }
 
 .images-list__button,
@@ -399,12 +400,29 @@ body {
     justify-content: center;
     min-height: 38px;
     padding: 0 14px;
+    border: none;
     border-radius: 10px;
     background: #0060ff;
     color: #fff;
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.images-list__button:hover,
+.images-list__pager:hover {
+    opacity: 0.85;
+}
+
+.images-list__button--delete {
+    background: #0060ff;
+}
+
+.images-list__button--delete:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .images-list__pagination {

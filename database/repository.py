@@ -1,6 +1,6 @@
 import logging
 from database.db import get_connection
-
+import os
 
 
 def save_metadata(filename: str, original_name: str, size: int, file_type: str) -> None:
@@ -48,5 +48,20 @@ def get_count_images():
         logging.error('НЕ смогли вытащить данные из бд.')
         raise
 
+def delete_image(filename):
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    '''DELETE FROM images WHERE filename=%s''',(filename,))
+                conn.commit()
+    except Exception:
+        logging.warning('Не получилось удалить изображение из бд')
+    images_dir = os.environ.get("IMAGES_DIR", "images")
+    file_path = os.path.join(images_dir, filename)
 
+    try:
+        os.remove(file_path)
+    except OSError:
+        logging.warning('Не получилось удалить изображение из папки images')
 

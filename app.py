@@ -4,7 +4,7 @@ import uuid
 from io import BytesIO
 from pathlib import Path
 from database.models import create_images
-from database.repository import save_metadata, get_images,get_count_images
+from database.repository import save_metadata, get_images, get_count_images, delete_image
 from PIL import Image, UnidentifiedImageError
 from flask import Flask, render_template, jsonify, request, send_from_directory, url_for
 
@@ -12,9 +12,9 @@ app = Flask(__name__)
 # создание логирования, папок и настроек для приложения
 BASE_DIR = Path(__file__).resolve().parent
 
-IMAGES_DIR = Path("IMAGES_DIR", BASE_DIR / 'images')
+IMAGES_DIR = Path(os.environ.get("IMAGES_DIR", BASE_DIR / "images"))#путь относительно проекта а не app.py
 
-LOGS_DIR = Path("LOGS_DIR", BASE_DIR / 'logs')
+LOGS_DIR = Path(os.environ.get("LOGS_DIR", BASE_DIR / "logs"))
 
 
 MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -167,6 +167,13 @@ def images_list():
         total_pages=total_pages,
         total_images=total
     )
+
+@app.delete('/images-list/<path:filename>')
+def delete_image_route(filename):
+    delete_image(filename)
+    logging.info(f'Изображение {filename} удалено')
+    return jsonify({'message': 'Изображение удалено'}), 200
+
 
 @app.get('/images/<path:filename>')
 def get_image(filename):
