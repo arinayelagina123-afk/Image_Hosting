@@ -222,3 +222,4 @@ __marimo__/
 # Database backups
 backups/*
 !backups/.gitkeep
+.idea/
